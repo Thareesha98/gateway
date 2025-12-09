@@ -7,4 +7,4 @@ data:
   DB_URL: "jdbc:postgresql://smart-board-db.c7miuo2k4f6h.ap-south-1.rds.amazonaws.com:5432/sbms_notification_db"
   RABBITMQ_HOST: "rabbitmq"
   RABBITMQ_PORT: "5672"
-  RABBITMQ_QUEUE: "sbms.notif"
+  RABBITMQ_QUEUE: "sbms.notifications"
