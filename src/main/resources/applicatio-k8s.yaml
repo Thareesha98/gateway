@@ -1,9 +1,34 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: sbms-notification-db-config
-  namespace: sbms
-data:
-  DB_URL: "jdbc:postgresql://smart-board-db.c7miuo2k4f6h.ap-south-1.rds.amazonaws.com:5432/sbms_notification_db"
-  RABBITMQ_HOST: "RABBITMQHOST"
-	
+=# ... in your deployment YAML (sbms-notification-deployment.yaml)
+spec:
+  containers:
+  - name: sbms-notification-service
+    image: your-repo/sbms-notification-service:latest
+    env:
+      # --- From ConfigMap ---
+      - name: DB_URL
+        valueFrom:
+          configMapKeyRef:
+            name: sbms-notification-config # ConfigMap name
+            key: DB_URL
+      - name: RABBITMQ_HOST
+        valueFrom:
+          configMapKeyRef:
+            name: sbms-notification-config
+            key: RABBITMQ_HOST
+      - name: RABBITMQ_PORT
+        valueFrom:
+          configMapKeyRef:
+            name: sbms-notification-config
+            key: RABBITMQ_PORT
+
+      # --- From Secret ---
+      - name: DB_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: sbms-notification-secret # Secret name
+            key: DB_USERNAME
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: sbms-notification-secret
+            key: DB_PASSWORD
