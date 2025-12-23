@@ -1,4 +1,3 @@
-=# ... in your deployment YAML (sbms-notification-deployment.yaml)
 spec:
   containers:
   - name: sbms-notification-service
