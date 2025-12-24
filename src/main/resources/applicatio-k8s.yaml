@@ -3,7 +3,7 @@ spec:
   - name: sbms-notification-service
     image: your-repo/sbms-notification-service:latest
     env:
-      # --- From ConfigMap ---
+
       - name: DB_URL
         valueFrom:
           configMapKeyRef:
