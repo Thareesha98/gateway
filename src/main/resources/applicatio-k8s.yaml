@@ -20,11 +20,10 @@ spec:
             name: sbms-notification-config
             key: RABBITMQ_PORT
 
-
       - name: DB_USERNAME
         valueFrom:
           secretKeyRef:
-            name: sbms-notification-secret # Secret name
+            name: sbms-notification-secret
             key: DB_USERNAME
       - name: DB_PASSWORD
         valueFrom:
