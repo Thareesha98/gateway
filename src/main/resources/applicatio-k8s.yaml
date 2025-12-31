@@ -1,32 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sbms-notification-service
+  labels:
+    app: sbms-notification
 spec:
-  containers:
-  - name: sbms-notification-service
-    image: your-repo/sbms-notification-service:latest
-    env:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sbms-notification
+  template:
+    metadata:
+      labels:
+        app: sbms-notification
+    spec:
+      containers:
+      - name: sbms-notification-service
+        image: your-repo/sbms-notification-service:1.0.2 # Avoid 'latest' in production
+        ports:
+        - containerPort: 8080 # Standard Spring Boot/Microservice port
+        
+        # 1. Resource Management (Prevents noisy neighbor issues)
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
 
-      - name: DB_URL
-        valueFrom:
-          configMapKeyRef:
-            name: sbms-notification-config # ConfigMap name
-            key: DB_URL
-      - name: RABBITMQ_HOST
-        valueFrom:
-          configMapKeyRef:
-            name: sbms-notification-config
-            key: RABBITMQ_HOST
-      - name: RABBITMQ_PORT
-        valueFrom:
-          configMapKeyRef:
-            name: sbms-notification-config
-            key: RABBITMQ_PORT
+        # 2. Health Checks (Self-healing)
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
 
-      - name: DB_USERNAME
-        valueFrom:
-          secretKeyRef:
-            name: sbms-notification-secret
-            key: DB_USERNAME
-      - name: DB_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: sbms-notification-secret
-            key: DB_PASSWORD
+        # 3. Environment Variables
+        env:
+          # From ConfigMap (Non-sensitive data)
+          - name: DB_URL
+            valueFrom:
+              configMapKeyRef:
+                name: sbms-notification-config
+                key: DB_URL
+          - name: RABBITMQ_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: sbms-notification-config
+                key: RABBITMQ_HOST
+          - name: RABBITMQ_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: sbms-notification-config
+                key: RABBITMQ_PORT
+
+          # From Secrets (Sensitive data)
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: sbms-notification-secret
+                key: DB_USERNAME
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: sbms-notification-secret
+                key: DB_PASSWORD
